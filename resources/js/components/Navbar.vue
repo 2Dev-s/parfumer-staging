@@ -5,7 +5,7 @@
                 <!-- Logo -->
                 <div class="flex-shrink-0 flex items-center">
                     <Link :href="route('home')">
-                        <span class="text-2xl font-serif font-bold text-gray-900 tracking-tight">ParfumÉlégance</span>
+                        <span class="text-2xl font-serif font-bold text-gray-900 tracking-tight">Parfumér</span>
                     </Link>
                 </div>
 
