@@ -276,8 +276,13 @@ const testimonials = [
 </script>
 
 <style scoped>
+html {
+    scroll-behavior: smooth;
+    overflow: auto;
+}
+
 .h-screen-90 {
-    height: 90vh;
+    height: 100vh;
 }
 
 /* Smooth transitions for hover effects */

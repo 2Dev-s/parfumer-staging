@@ -19,9 +19,9 @@
                 <p class="text-lg text-white/80 font-light max-w-md">
                     Descoperă parfumuri care dansează între florale delicate și intensitate captivantă
                 </p>
-                <Link :href="route('home')"  class="bg-white/10 backdrop-blur-lg px-8 py-4 rounded-full text-white font-semibold hover:bg-white/20 transition-all">
+                <a href="/home" class="bg-white/10 backdrop-blur-lg px-8 py-4 rounded-full text-white font-semibold hover:bg-white/20 transition-all">
                     Explorează Colecția →
-                </Link>
+                </a>
             </div>
         </div>
 
@@ -46,9 +46,9 @@
                     Parfumuri care întruchipează puterea și rafinamentul într-o armonie perfectă
                 </p>
                 <div class="flex justify-end">
-                    <Link :href="route('home')"  class="bg-white/10 backdrop-blur-lg px-8 py-4 rounded-full text-white font-semibold hover:bg-white/20 transition-all">
+                    <a href="/home" class="bg-white/10 backdrop-blur-lg px-8 py-4 rounded-full text-white font-semibold hover:bg-white/20 transition-all">
                         Descoperă Parfumurile →
-                    </Link>
+                    </a>
                 </div>
             </div>
 
