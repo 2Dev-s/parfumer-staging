@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
+use App\Models\Category;
 use App\Models\Parfum;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,6 +17,7 @@ class ParfumesController extends Controller
         $brand = $request->get('brand');
         $sort = $request->get('sort');    // price_asc / price_desc
         $search = $request->get('search'); // new: search keyword
+        $category = $request->get('category'); // new: search keyword
 
         $parfumes = Parfum::query();
 
@@ -34,6 +36,10 @@ class ParfumesController extends Controller
             $parfumes->where('brand_id', $brand);
         }
 
+        if ($category) {
+            $parfumes->where('category_id', $category);
+        }
+
         // Apply sorting by price if sort value is provided
         if ($sort) {
             if ($sort === 'price_asc') {
@@ -50,11 +56,13 @@ class ParfumesController extends Controller
 
         // Get available brands
         $brands = Brand::where('active', 1)->get();
+        $categories = Category::where('active', 1)->get();
 
         // Return data to the view
         return Inertia::render('pages/Parfumes', [
             'parfumes' => $parfumes ?? [],
             'brands' => $brands ?? [],
+            'categories' => $categories ?? [],
             'sex' => $sex,
             'brand' => $brand,
             'search' => $search,

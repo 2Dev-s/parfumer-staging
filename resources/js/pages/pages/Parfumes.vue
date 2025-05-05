@@ -61,17 +61,6 @@
                         </select>
                     </div>
 
-                    <!-- Brand Select -->
-                    <div class="w-full sm:flex-1 sm:min-w-[180px] lg:max-w-[220px]">
-                        <select
-                            v-model="filters.brand"
-                            class="w-full border border-gray-300 bg-white py-2.5 px-4 text-sm text-gray-800 hover:border-gray-400 focus:ring-2 focus:ring-amber-500 focus:outline-none sm:text-base sm:py-2.5"
-                        >
-                            <option value="">Brand</option>
-                            <option v-for="brand in props.brands" :key="brand.id" :value="brand.id">{{ brand.name }}</option>
-                        </select>
-                    </div>
-
                     <!-- Sex Select -->
                     <div class="w-full sm:flex-1 sm:min-w-[180px] lg:max-w-[220px]">
                         <select
@@ -82,6 +71,25 @@
                             <option value="female">Femei</option>
                             <option value="male">Barbati</option>
                             <option value="unisex">Unisex</option>
+                        </select>
+                    </div>
+
+                    <div class="w-full sm:flex-1 sm:min-w-[180px] lg:max-w-[220px]">
+                        <select
+                            v-model="filters.brand"
+                            class="w-full border border-gray-300 bg-white py-2.5 px-4 text-sm text-gray-800 hover:border-gray-400 focus:ring-2 focus:ring-amber-500 focus:outline-none sm:text-base sm:py-2.5"
+                        >
+                            <option value="">Brand</option>
+                            <option v-for="brand in props.brands" :key="brand.id" :value="brand.id">{{ brand.name }}</option>
+                        </select>
+                    </div>
+                    <div class="w-full sm:flex-1 sm:min-w-[180px] lg:max-w-[220px]">
+                        <select
+                            v-model="filters.category"
+                            class="w-full border border-gray-300 bg-white py-2.5 px-4 text-sm text-gray-800 hover:border-gray-400 focus:ring-2 focus:ring-amber-500 focus:outline-none sm:text-base sm:py-2.5"
+                        >
+                            <option value="">Categorie</option>
+                            <option v-for="category in props.categories" :key="category.id" :value="category.id">{{ category.name }}</option>
                         </select>
                     </div>
 
@@ -202,6 +210,7 @@ const filters = ref({
     brand: '',
     sex: '',
     newarrivals: '',
+    category: '',
 });
 
 onMounted(() => {
@@ -210,6 +219,7 @@ onMounted(() => {
     filters.value.sort = query.get('sort') || '';
     filters.value.brand = query.get('brand') || '';
     filters.value.sex = query.get('sex') || '';
+    filters.value.category = query.get('category') || '';
 });
 
 const form = useForm(filters.value);
@@ -239,6 +249,10 @@ const submit = () => {
 
 const props = defineProps({
     parfumes: {
+        type: Array,
+        default: () => [],
+    },
+    categories: {
         type: Array,
         default: () => [],
     },
