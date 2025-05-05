@@ -25,8 +25,8 @@ class DashboardPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->id('admin')
-            ->path('admin')
+            ->id('dashboard')
+            ->path('dashboard')
             ->login()
             ->colors([
                 'primary' => Color::Emerald,
@@ -42,15 +42,15 @@ class DashboardPanelProvider extends PanelProvider
 //                Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
-//                EncryptCookies::class,
-//                AddQueuedCookiesToResponse::class,
-//                StartSession::class,
-//                AuthenticateSession::class,
-//                ShareErrorsFromSession::class,
-//                VerifyCsrfToken::class,
-//                SubstituteBindings::class,
-//                DisableBladeIconComponents::class,
-//                DispatchServingFilamentEvent::class,
+                EncryptCookies::class,
+                AddQueuedCookiesToResponse::class,
+                StartSession::class,
+                AuthenticateSession::class,
+                ShareErrorsFromSession::class,
+                VerifyCsrfToken::class,
+                SubstituteBindings::class,
+                DisableBladeIconComponents::class,
+                DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
