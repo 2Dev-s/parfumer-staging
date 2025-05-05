@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -71,8 +71,8 @@ class User extends Authenticatable
         return $this->is_admin;
     }
 
-//    public function canAccessPanel(Panel $panel): bool
-//    {
-//        return str_ends_with($this->email, '@twodevs.ro') && $this->isAdmin();
-//    }
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return str_ends_with($this->email, '@twodevs.ro') && $this->isAdmin();
+    }
 }
