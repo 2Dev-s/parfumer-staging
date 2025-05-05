@@ -7,7 +7,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
     server: {
-        host: 'parfumer3.test',
+        host: 'parfumer.test',
         port: 5173,
     },
     plugins: [
