@@ -4,7 +4,7 @@
         <section
             class="h-screen-90 relative flex items-center justify-center overflow-hidden bg-cover bg-center"
             style="
-                background-image: url('https://img.freepik.com/free-photo/bride-holds-bottle-parfume-her-tender-arms_8353-7217.jpg?t=st=1746211598~exp=1746215198~hmac=1dce2d00b7725ff60906507c85511969826d008859851a2a0c3fba9fa2111fce&w=740');
+                background-image: url('https://img.freepik.com/free-photo/attractive-seductive-sensual-stylish-woman-boho-dress-sitting-vintage-retro-cafe-holding-perfume_285396-6942.jpg?t=st=1746487707~exp=1746491307~hmac=aa370ef4e5e78146a8aca2da33d3ddf251006fe357d7d36a0b49c1de6bdcb8c5&w=996');
             "
         >
             <div class="absolute inset-0 z-10 bg-black/30"></div>
