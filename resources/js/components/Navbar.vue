@@ -114,9 +114,9 @@ import { Link } from '@inertiajs/vue3';
 const isOpen = ref(false);
 
 const navigation = [
-    { name: 'Women', href: '/women' },
-    { name: 'Men', href: '/men' },
-    { name: 'New Arrivals', href: '/new' },
+    { name: 'Women', href: '/parfumuri/barbati' },
+    { name: 'Men', href: '/parfumuri/femei' },
+    { name: 'New Arrivals', href: '/parfumuri/female' },
     { name: 'Luxury', href: '/luxury' },
     { name: 'Gifts', href: '/gifts' },
 ];

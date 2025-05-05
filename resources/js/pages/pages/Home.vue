@@ -18,11 +18,11 @@
                 <p class="mx-auto mb-10 max-w-2xl text-xl font-light text-white/90 md:text-2xl">
                     Descoperă colecția noastră exclusivă de parfumuri artizanale care spun povestea ta unică
                 </p>
-                <button
+                <a :href="route('parfumes')"
                     class="rounded-full border border-white/20 bg-white/10 px-10 py-4 text-lg font-medium text-white backdrop-blur-lg transition-all duration-300 hover:bg-white/20"
                 >
                     Explorează Colecțiile
-                </button>
+                </a>
             </div>
         </section>
 
@@ -35,7 +35,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
-                    <div v-if="!props.parfumes" v-for="collection in collections" :key="collection.id" class="group relative aspect-square overflow-hidden rounded-lg">
+                    <a :href="collection.href" v-if="!props.parfumes.length" v-for="collection in collections" :key="collection.id" class="group relative aspect-square overflow-hidden rounded-lg">
                         <img
                             :src="collection.image"
                             :alt="collection.name"
@@ -52,7 +52,7 @@
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </a>
                     <div v-else v-for="collection in props.parfumes" :key="collection.id" class="group relative aspect-square overflow-hidden rounded-lg">
                         <img
                             :src="collection.image"
@@ -137,21 +137,6 @@
                         :key="testimonial.id"
                         class="group relative rounded-lg border border-gray-100 bg-white p-10 shadow-sm transition-all duration-300 hover:shadow-md"
                     >
-                        <div class="absolute top-0 left-10 -translate-y-1/2 rounded-full border border-gray-100 bg-white px-4 py-2 shadow-sm">
-                            <div class="flex text-amber-500">
-                                <svg
-                                    v-for="i in 5"
-                                    :key="i"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    class="h-4 w-4"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                >
-                                    <path d="..." />
-                                </svg>
-                            </div>
-                        </div>
-
                         <p class="mb-8 text-lg leading-relaxed font-light text-gray-600 italic">"{{ testimonial.text }}"</p>
 
                         <div class="flex items-center">
@@ -298,23 +283,24 @@ const props = defineProps({
     }
 });
 
-console.log(props.parfumes)
-
 const collections = [
     {
         id: 1,
-        name: 'Floral Elegance',
+        name: 'Parfumuri Femei',
         image: 'https://img.freepik.com/premium-psd/fruit-perfume-bottle-mockup_23-2151411650.jpg?w=740',
+        href: '/parfumuri?sex=female'
     },
     {
         id: 2,
-        name: 'Woody Mystique',
+        name: 'Parfumuri Unisex',
         image: 'https://img.freepik.com/premium-psd/logo-mockup-luxury-perfume-bottle_206274-276.jpg?w=740',
+        href: '/parfumuri?sex=unisex'
     },
     {
         id: 3,
-        name: 'Citrus Fresh',
+        name: 'Parfumuri Barbati',
         image: 'https://img.freepik.com/premium-psd/perfume-bottle-sand_23-2148961294.jpg?w=740',
+        href: '/parfumuri?sex=male'
     },
 ];
 

@@ -18,6 +18,7 @@ class Parfum extends Model implements HasMedia
     protected $fillable = [
         'name',
         'brand_id',
+        'category_id',
         'description',
         'price',
         'stock',
@@ -38,6 +39,11 @@ class Parfum extends Model implements HasMedia
     public function brand(): BelongsTo
     {
         return $this->belongsTo(Brand::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
     }
 
     public function registerMediaCollections(): void

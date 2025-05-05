@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('parfums', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('brand_id');
+            $table->unsignedBigInteger('category_id');
             $table->string('name');
             $table->text('description');
             $table->decimal('price')->default(0);

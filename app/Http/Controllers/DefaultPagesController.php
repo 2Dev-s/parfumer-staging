@@ -11,7 +11,8 @@ class DefaultPagesController extends Controller
         return Inertia::render('Welcome');
     }
 
-    public function home($sex = null) {
+    public function home($sex = null)
+    {
         if ($sex) {
             $parfumes = Parfum::query()
                 ->when($sex, function ($query, $sex) {
