@@ -11,6 +11,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserResource extends Resource
 {
@@ -41,7 +44,81 @@ class UserResource extends Resource
 
             ])
             ->filters([
-                //
+                // Name filter
+                Filter::make('name')
+                    ->form([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Search by name')
+                            ->placeholder('Enter name...')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['name'],
+                            fn (Builder $query, $name) => $query->where('name', 'like', "%{$name}%")
+                        );
+                    })
+                    ->indicator('Name contains'),
+
+                // Email filter
+                Filter::make('email')
+                    ->form([
+                        Forms\Components\TextInput::make('email')
+                            ->label('Search by email')
+                            ->placeholder('Enter email...')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['email'],
+                            fn (Builder $query, $email) => $query->where('email', 'like', "%{$email}%")
+                        );
+                    })
+                    ->indicator('Email contains'),
+
+                // Date range filter
+                Filter::make('created_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')
+                            ->label('From date'),
+                        Forms\Components\DatePicker::make('until')
+                            ->label('To date'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'],
+                                fn (Builder $query, $date) => $query->whereDate('created_at', '>=', $date)
+                            )
+                            ->when(
+                                $data['until'],
+                                fn (Builder $query, $date) => $query->whereDate('created_at', '<=', $date)
+                            );
+                    })
+                    ->indicator('Date range'),
+
+                // Verified email filter (if you have email_verified_at column)
+                SelectFilter::make('verified')
+                    ->label('Email Verified')
+                    ->options([
+                        'verified' => 'Verified',
+                        'unverified' => 'Unverified',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['value'] === 'verified',
+                            fn (Builder $query) => $query->whereNotNull('email_verified_at')
+                        )->when(
+                            $data['value'] === 'unverified',
+                            fn (Builder $query) => $query->whereNull('email_verified_at')
+                        );
+                    })
+                    ->indicator('Verification status'),
+
+                // New users filter (last 7 days)
+                Filter::make('new_users')
+                    ->label('New Users (Last 7 days)')
+                    ->query(fn (Builder $query): Builder => $query->where('created_at', '>=', now()->subDays(7)))
+                    ->toggle()
+                    ->indicator('New users'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

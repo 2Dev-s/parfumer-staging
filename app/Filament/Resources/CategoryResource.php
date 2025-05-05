@@ -1,21 +1,32 @@
 <?php
 
-namespace App\Filament\Resources\ParfumResource\RelationManagers;
+namespace App\Filament\Resources;
 
+use App\Filament\Resources\CategoryResource\Pages;
+use App\Filament\Resources\CategoryResource\RelationManagers;
+use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\BooleanColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class BrandRelationManager extends RelationManager
+class CategoryResource extends Resource
 {
-    protected static string $relationship = 'brand';
+    protected static ?string $model = Category::class;
+    protected static ?int $navigationSort = 5;
 
-    public function form(Form $form): Form
+    protected static ?string $navigationGroup = 'System Management';
+
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    public static function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -24,15 +35,15 @@ class BrandRelationManager extends RelationManager
             ]);
     }
 
-    public function table(Table $table): Table
+    public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('created_at'),
+                TextColumn::make('name')->label('Name'),
+                BooleanColumn::make('active')->label('Active'),
+
             ])
             ->filters([
-                // Name filter with search
                 Filter::make('name')
                     ->form([
                         Forms\Components\TextInput::make('name')
@@ -53,19 +64,41 @@ class BrandRelationManager extends RelationManager
                         '1' => 'Active',
                         '0' => 'Inactive',
                     ])
-                    ->indicator('Active Status'), // Shows filter indicator
-            ])
-            ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                    ->indicator('Active Status'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\ParfumesRelationManager::class
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListCategories::route('/'),
+            'create' => Pages\CreateCategory::route('/create'),
+            'edit' => Pages\EditCategory::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('active', true)->count();
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'The number of active categories';
     }
 }

@@ -11,7 +11,6 @@ class CustomersChart extends ChartWidget
     protected static string $color = 'success';
     protected static ?int $sort = 2;
 
-
     protected function getData(): array
     {
         // Get the number of new customers created each month in the current year
