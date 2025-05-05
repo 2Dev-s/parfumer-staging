@@ -12,6 +12,9 @@ use Filament\Tables;
 use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
 
 class BrandResource extends Resource
 {
@@ -40,7 +43,28 @@ class BrandResource extends Resource
                 BooleanColumn::make('active')->label('Active'),
             ])
             ->filters([
+                // Name filter with search
+                Filter::make('name')
+                    ->form([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Search by name')
+                            ->placeholder('Enter name...')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['name'],
+                            fn (Builder $query, $name) => $query->where('name', 'like', "%{$name}%")
+                        );
+                    }),
 
+                // Active status filter
+                SelectFilter::make('active')
+                    ->label('Status')
+                    ->options([
+                        '1' => 'Active',
+                        '0' => 'Inactive',
+                    ])
+                    ->indicator('Active Status'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

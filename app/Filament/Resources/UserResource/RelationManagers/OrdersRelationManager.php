@@ -10,6 +10,9 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
 
 class OrdersRelationManager extends RelationManager
 {
@@ -61,7 +64,102 @@ class OrdersRelationManager extends RelationManager
                 TextColumn::make('created_at')->label('Created At'),
             ])
             ->filters([
-                // Add any necessary filters here
+                // Client filter (search by user name)
+                Filter::make('client')
+                    ->form([
+                        Forms\Components\TextInput::make('client_name')
+                            ->label('Client Name')
+                            ->placeholder('Search client...')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['client_name'],
+                            fn (Builder $query, $name) => $query->whereHas('user', function($q) use ($name) {
+                                $q->where('name', 'like', "%{$name}%");
+                            })
+                        );
+                    }),
+
+                // Order number filter
+                Filter::make('order_number')
+                    ->form([
+                        Forms\Components\TextInput::make('order_number')
+                            ->label('Order Number')
+                            ->numeric()
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['order_number'],
+                            fn (Builder $query, $number) => $query->where('order_number', $number)
+                        );
+                    }),
+
+                // Total amount range filter
+                Filter::make('total')
+                    ->form([
+                        Forms\Components\TextInput::make('min_total')
+                            ->label('Min Total (RON)')
+                            ->numeric(),
+                        Forms\Components\TextInput::make('max_total')
+                            ->label('Max Total (RON)')
+                            ->numeric(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['min_total'],
+                                fn (Builder $query, $min) => $query->where('total', '>=', $min)
+                            )
+                            ->when(
+                                $data['max_total'],
+                                fn (Builder $query, $max) => $query->where('total', '<=', $max)
+                            );
+                    }),
+
+                // Shipping address filter
+                Filter::make('shipping_address')
+                    ->form([
+                        Forms\Components\TextInput::make('address')
+                            ->label('Shipping Address Contains')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['address'],
+                            fn (Builder $query, $address) => $query->where('shipping_address', 'like', "%{$address}%")
+                        );
+                    }),
+
+                // Status filter
+                SelectFilter::make('status')
+                    ->label('Order Status')
+                    ->options([
+                        'pending' => 'Pending',
+                        'processing' => 'Processing',
+                        'shipped' => 'Shipped',
+                        'completed' => 'Completed',
+                    ])
+                    ->indicator('Status'),
+
+                // Date range filter
+                Filter::make('created_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')
+                            ->label('From Date'),
+                        Forms\Components\DatePicker::make('until')
+                            ->label('To Date'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'],
+                                fn (Builder $query, $date) => $query->whereDate('created_at', '>=', $date)
+                            )
+                            ->when(
+                                $data['until'],
+                                fn (Builder $query, $date) => $query->whereDate('created_at', '<=', $date)
+                            );
+                    })
+                    ->indicator('Date Range'),
             ])
             ->headerActions([
 //                Tables\Actions\CreateAction::make(),

@@ -6,7 +6,10 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class BrandRelationManager extends RelationManager
 {
@@ -29,7 +32,28 @@ class BrandRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('created_at'),
             ])
             ->filters([
-                //
+                // Name filter with search
+                Filter::make('name')
+                    ->form([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Search by name')
+                            ->placeholder('Enter name...')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['name'],
+                            fn (Builder $query, $name) => $query->where('name', 'like', "%{$name}%")
+                        );
+                    }),
+
+                // Active status filter
+                SelectFilter::make('active')
+                    ->label('Status')
+                    ->options([
+                        '1' => 'Active',
+                        '0' => 'Inactive',
+                    ])
+                    ->indicator('Active Status'), // Shows filter indicator
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make(),

@@ -11,7 +11,12 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+
 
 class ParfumResource extends Resource
 {
@@ -43,8 +48,11 @@ class ParfumResource extends Resource
                 Forms\Components\Select::make('active')
                     ->options(['1' => 'Active', '0' => 'Inactive'])
                     ->default('1')
-                    ->required()
-                    ->columnSpan(2),
+                    ->required(),
+                Forms\Components\Select::make('sex')
+                    ->options(['male' => 'Male', 'female' => 'Female', 'unisex' => 'Unisex'])
+                    ->default('male')
+                    ->required(),
 
                 Forms\Components\SpatieMediaLibraryFileUpload::make('images')
                     ->label('Parfum Images')
@@ -69,6 +77,7 @@ class ParfumResource extends Resource
                     ->formatStateUsing(fn($state) => $state . ' RON'),
                 TextColumn::make('stock')->label('Stock'),
                 BooleanColumn::make('active')->label('Active'),
+                TextColumn::make('sex')->label('Sex'),
                 Tables\Columns\ImageColumn::make('media.first.url')
                     ->label('Preview')
                     ->getStateUsing(function ($record) {
@@ -76,7 +85,102 @@ class ParfumResource extends Resource
                     }),
                 ])
             ->filters([
-                //
+                // Filter by name
+                Filter::make('name')
+                    ->form([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Search by name')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['name'],
+                            fn (Builder $query, $name) => $query->where('name', 'like', "%{$name}%")
+                        );
+                    }),
+
+                // Filter by brand
+                SelectFilter::make('brand_id')
+                    ->label('Brand')
+                    ->relationship('brand', 'name')
+                    ->searchable()
+                    ->preload(),
+
+                // Filter by description
+                Filter::make('description')
+                    ->form([
+                        Forms\Components\TextInput::make('description')
+                            ->label('Search in description')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['description'],
+                            fn (Builder $query, $description) => $query->where('description', 'like', "%{$description}%")
+                        );
+                    }),
+
+                // Price range filter
+                Filter::make('price')
+                    ->form([
+                        Forms\Components\TextInput::make('min_price')
+                            ->label('Min Price')
+                            ->numeric(),
+                        Forms\Components\TextInput::make('max_price')
+                            ->label('Max Price')
+                            ->numeric(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['min_price'],
+                                fn (Builder $query, $minPrice) => $query->where('price', '>=', $minPrice)
+                            )
+                            ->when(
+                                $data['max_price'],
+                                fn (Builder $query, $maxPrice) => $query->where('price', '<=', $maxPrice)
+                            );
+                    }),
+
+                // Stock filter
+                Filter::make('stock')
+                    ->form([
+                        Forms\Components\TextInput::make('min_stock')
+                            ->label('Min Stock')
+                            ->numeric(),
+                        Forms\Components\TextInput::make('max_stock')
+                            ->label('Max Stock')
+                            ->numeric(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['min_stock'],
+                                fn (Builder $query, $minStock) => $query->where('stock', '>=', $minStock)
+                            )
+                            ->when(
+                                $data['max_stock'],
+                                fn (Builder $query, $maxStock) => $query->where('stock', '<=', $maxStock)
+                            );
+                    }),
+
+                // Active filter
+                SelectFilter::make('active')
+                    ->options([
+                        '1' => 'Active',
+                        '0' => 'Inactive',
+                    ]),
+
+                // Sex filter (existing)
+                SelectFilter::make('sex')
+                    ->options([
+                        'male' => 'Masculin',
+                        'female' => 'Feminin',
+                        'unisex' => 'Unisex',
+                    ]),
+
+                // Filter by media presence
+                Filter::make('has_media')
+                    ->label('Has Image')
+                    ->query(fn (Builder $query): Builder => $query->whereHas('media')),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

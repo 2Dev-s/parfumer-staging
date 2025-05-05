@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('description');
             $table->decimal('price')->default(0);
             $table->integer('stock')->default(0);
+            $table->enum('sex', ['male', 'female', 'unisex'])->default('male');
             $table->boolean('active')->default(false);
             $table->timestamps();
         });
