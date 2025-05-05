@@ -21,7 +21,7 @@ class DefaultPagesController extends Controller
         }
 
         return Inertia::render('pages/Home', [
-            'parfumes' => $parfumes
+            'parfumes' => $parfumes ?? []
         ]);
     }
 }
