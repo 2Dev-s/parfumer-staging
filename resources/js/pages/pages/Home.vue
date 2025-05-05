@@ -26,12 +26,6 @@
             </div>
         </section>
 
-        <section>
-            <div v-for="parfume in props.parfumes" :key="parfume.id">
-                {{ parfume.name }}
-            </div>
-        </section>
-
         <!-- Featured Collections -->
         <section class="bg-white py-20">
             <div class="mx-auto max-w-7xl px-6">
