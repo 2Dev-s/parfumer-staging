@@ -13,8 +13,6 @@ class OrdersChart extends ChartWidget
     protected static string $color = 'info';
     protected static ?int $sort = 3;
 
-
-
     protected function getData(): array
     {
         // Get the number of orders created each month in the current year
