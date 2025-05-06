@@ -4,7 +4,7 @@
         <section
             class="h-screen-90 relative flex items-center justify-center overflow-hidden bg-cover bg-center"
             style="
-                background-image: url('https://img.freepik.com/free-photo/bride-holds-bottle-parfume-her-tender-arms_8353-7217.jpg?t=st=1746211598~exp=1746215198~hmac=1dce2d00b7725ff60906507c85511969826d008859851a2a0c3fba9fa2111fce&w=740');
+                background-image: url('https://img.freepik.com/free-photo/attractive-seductive-sensual-stylish-woman-boho-dress-sitting-vintage-retro-cafe-holding-perfume_285396-6942.jpg?t=st=1746487707~exp=1746491307~hmac=aa370ef4e5e78146a8aca2da33d3ddf251006fe357d7d36a0b49c1de6bdcb8c5&w=996');
             "
         >
             <div class="absolute inset-0 z-10 bg-black/30"></div>
@@ -61,17 +61,6 @@
                         </select>
                     </div>
 
-                    <!-- Brand Select -->
-                    <div class="w-full sm:flex-1 sm:min-w-[180px] lg:max-w-[220px]">
-                        <select
-                            v-model="filters.brand"
-                            class="w-full border border-gray-300 bg-white py-2.5 px-4 text-sm text-gray-800 hover:border-gray-400 focus:ring-2 focus:ring-amber-500 focus:outline-none sm:text-base sm:py-2.5"
-                        >
-                            <option value="">Brand</option>
-                            <option v-for="brand in props.brands" :key="brand.id" :value="brand.id">{{ brand.name }}</option>
-                        </select>
-                    </div>
-
                     <!-- Sex Select -->
                     <div class="w-full sm:flex-1 sm:min-w-[180px] lg:max-w-[220px]">
                         <select
@@ -85,10 +74,29 @@
                         </select>
                     </div>
 
+                    <div class="w-full sm:flex-1 sm:min-w-[180px] lg:max-w-[220px]">
+                        <select
+                            v-model="filters.brand"
+                            class="w-full border border-gray-300 bg-white py-2.5 px-4 text-sm text-gray-800 hover:border-gray-400 focus:ring-2 focus:ring-amber-500 focus:outline-none sm:text-base sm:py-2.5"
+                        >
+                            <option value="">Brand</option>
+                            <option v-for="brand in props.brands" :key="brand.id" :value="brand.id">{{ brand.name }}</option>
+                        </select>
+                    </div>
+                    <div class="w-full sm:flex-1 sm:min-w-[180px] lg:max-w-[220px]">
+                        <select
+                            v-model="filters.category"
+                            class="w-full border border-gray-300 bg-white py-2.5 px-4 text-sm text-gray-800 hover:border-gray-400 focus:ring-2 focus:ring-amber-500 focus:outline-none sm:text-base sm:py-2.5"
+                        >
+                            <option value="">Categorie</option>
+                            <option v-for="category in props.categories" :key="category.id" :value="category.id">{{ category.name }}</option>
+                        </select>
+                    </div>
+
                     <!-- Search Button -->
                     <button
                         type="submit"
-                        class="w-full sm:w-auto px-6 py-2.5 bg-black text-white hover:bg-gray-800 transition-colors text-sm sm:text-base"
+                        class="w-full hover:cursor-pointer hover:scale-105 sm:w-auto px-6 py-2.5 bg-black text-white hover:bg-gray-800 transition-colors text-sm sm:text-base"
                     >
                         Caută
                     </button>
@@ -107,7 +115,7 @@
                     >
                         <div class="relative h-full w-full overflow-hidden">
                             <img
-                                :src="parfum.image_url || 'https://via.placeholder.com/300x400?text=Perfume'"
+                                :src="parfum.main_image_url"
                                 :alt="parfum.name"
                                 class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
@@ -202,6 +210,7 @@ const filters = ref({
     brand: '',
     sex: '',
     newarrivals: '',
+    category: '',
 });
 
 onMounted(() => {
@@ -210,21 +219,27 @@ onMounted(() => {
     filters.value.sort = query.get('sort') || '';
     filters.value.brand = query.get('brand') || '';
     filters.value.sex = query.get('sex') || '';
+    filters.value.category = query.get('category') || '';
 });
 
 const form = useForm(filters.value);
 const parfumeCollection = ref<HTMLElement | null>(null);
 
 const submit = () => {
-    const queryParams = new URLSearchParams(filters.value).toString();
-    const url = `${route('parfumes')}?${queryParams}`;
+    // Create clean query params object
+    const cleanParams = Object.entries(filters.value).reduce((acc, [key, value]) => {
+        if (value && value !== '') {
+            acc[key] = value;
+        }
+        return acc;
+    }, {});
 
-    console.log('URL:', url); // Log the URL to see if filters are included
+    // Build URL with only active filters
+    const queryParams = new URLSearchParams(cleanParams).toString();
+    const url = queryParams ? `${route('parfumes')}?${queryParams}` : route('parfumes');
 
     form.post(url, {
         onSuccess: () => {
-            console.log('Filters applied successfully');
-
             if (parfumeCollection.value) {
                 parfumeCollection.value.scrollIntoView({ behavior: 'smooth' });
             }
@@ -239,6 +254,10 @@ const submit = () => {
 
 const props = defineProps({
     parfumes: {
+        type: Array,
+        default: () => [],
+    },
+    categories: {
         type: Array,
         default: () => [],
     },

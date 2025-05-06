@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -49,9 +50,7 @@ class Parfum extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('main')
-            ->singleFile()
-            ->useFallbackUrl('/images/default-parfum.jpg')
-            ->useFallbackPath(public_path('/images/default-parfum.jpg'));
+            ->singleFile();
 
         $this->addMediaCollection('gallery')
             ->useDisk('public'); // or whatever disk you prefer
@@ -73,17 +72,22 @@ class Parfum extends Model implements HasMedia
 
     public function getMainImageUrlAttribute(): string
     {
-        return $this->getFirstMediaUrl('main', 'medium') ?: '/images/default-parfum.jpg';
+        return $this->getFirstMediaUrl('images', 'medium');
     }
 
     public function getGalleryImagesAttribute(): array
     {
         return $this->getMedia('gallery')->map(function ($media) {
             return [
-                'original' => $media->getUrl(),
-                'thumb' => $media->getUrl('thumb'),
-                'medium' => $media->getUrl('medium')
+                'url' => $media->getFullUrl('medium'),
+                'thumb' => $media->getFullUrl('thumb'),
             ];
         })->toArray();
     }
+
+    public function galleryImages(): MorphMany
+    {
+        return $this->media()->where('images', 'gallery');
+    }
+
 }
