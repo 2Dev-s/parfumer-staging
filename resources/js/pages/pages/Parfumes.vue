@@ -115,7 +115,7 @@
                     >
                         <div class="relative h-full w-full overflow-hidden">
                             <img
-                                :src="parfum.image_url || 'https://via.placeholder.com/300x400?text=Perfume'"
+                                :src="parfum.main_image_url"
                                 :alt="parfum.name"
                                 class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
@@ -226,15 +226,20 @@ const form = useForm(filters.value);
 const parfumeCollection = ref<HTMLElement | null>(null);
 
 const submit = () => {
-    const queryParams = new URLSearchParams(filters.value).toString();
-    const url = `${route('parfumes')}?${queryParams}`;
+    // Create clean query params object
+    const cleanParams = Object.entries(filters.value).reduce((acc, [key, value]) => {
+        if (value && value !== '') {
+            acc[key] = value;
+        }
+        return acc;
+    }, {});
 
-    console.log('URL:', url); // Log the URL to see if filters are included
+    // Build URL with only active filters
+    const queryParams = new URLSearchParams(cleanParams).toString();
+    const url = queryParams ? `${route('parfumes')}?${queryParams}` : route('parfumes');
 
     form.post(url, {
         onSuccess: () => {
-            console.log('Filters applied successfully');
-
             if (parfumeCollection.value) {
                 parfumeCollection.value.scrollIntoView({ behavior: 'smooth' });
             }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -80,10 +81,15 @@ class Parfum extends Model implements HasMedia
     {
         return $this->getMedia('gallery')->map(function ($media) {
             return [
-                'original' => $media->getUrl(),
-                'thumb' => $media->getUrl('thumb'),
-                'medium' => $media->getUrl('medium')
+                'url' => $media->getFullUrl('medium'),
+                'thumb' => $media->getFullUrl('thumb'),
             ];
         })->toArray();
     }
+
+    public function galleryImages(): MorphMany
+    {
+        return $this->media()->where('images', 'gallery');
+    }
+
 }
