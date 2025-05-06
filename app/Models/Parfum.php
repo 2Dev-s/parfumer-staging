@@ -50,9 +50,7 @@ class Parfum extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('main')
-            ->singleFile()
-            ->useFallbackUrl('/images/default-parfum.jpg')
-            ->useFallbackPath(public_path('/images/default-parfum.jpg'));
+            ->singleFile();
 
         $this->addMediaCollection('gallery')
             ->useDisk('public'); // or whatever disk you prefer
@@ -74,7 +72,7 @@ class Parfum extends Model implements HasMedia
 
     public function getMainImageUrlAttribute(): string
     {
-        return $this->getFirstMediaUrl('main', 'medium') ?: '/images/default-parfum.jpg';
+        return $this->getFirstMediaUrl('images', 'medium');
     }
 
     public function getGalleryImagesAttribute(): array
