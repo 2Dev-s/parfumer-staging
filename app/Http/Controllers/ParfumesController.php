@@ -19,7 +19,7 @@ class ParfumesController extends Controller
         $search = $request->get('search'); // new: search keyword
         $category = $request->get('category'); // new: search keyword
 
-        $parfumes = Parfum::query();
+        $parfumes = Parfum::with(['brand', 'category']); // Add this line
 
         // Apply search filter if provided
         if ($search) {

@@ -114,11 +114,11 @@ import { Link } from '@inertiajs/vue3';
 const isOpen = ref(false);
 
 const navigation = [
-    { name: 'Women', href: '/parfumuri/barbati' },
-    { name: 'Men', href: '/parfumuri/femei' },
-    { name: 'New Arrivals', href: '/parfumuri/female' },
-    { name: 'Luxury', href: '/luxury' },
-    { name: 'Gifts', href: '/gifts' },
+    { name: 'Femei', href: '/parfumuri?sex=female' },
+    { name: 'Barbati', href: '/parfumuri?sex=male' },
+    { name: 'Noi', href: '/parfumuri?sort=new_arrival' },
+    { name: 'Luxury', href: '/parfumuri?category=1' },
+    { name: 'Cadouri', href: '/gifts' },
 ];
 
 </script>
