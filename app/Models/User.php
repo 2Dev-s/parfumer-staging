@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -69,6 +69,11 @@ class User extends Authenticatable implements FilamentUser
     public function isAdmin(): bool
     {
         return $this->is_admin;
+    }
+
+    public function cartItems(): HasMany
+    {
+        return $this->hasMany(CartItems::class);
     }
 
     public function canAccessPanel(Panel $panel): bool

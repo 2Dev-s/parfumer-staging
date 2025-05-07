@@ -109,36 +109,66 @@
                     <p class="text-lg text-gray-500">Nu am găsit parfumuri. Te rugăm să încerci un alt filtru.</p>
                 </div>
 
-                <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:gap-10">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     <div
                         v-for="parfum in parfumes"
                         :key="parfum.id"
-                        class="group relative overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+                        class="group relative overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:shadow-lg"
                     >
                         <!-- Image Container -->
                         <div class="relative aspect-[3/4] w-full overflow-hidden">
-                            <!-- Gradient Overlay -->
-                            <div class="absolute inset-0 z-10 bg-gradient-to-t from-black/50 via-black/10 to-transparent"></div>
-
                             <!-- Main Image -->
-                            <img
-                                :src="parfum.main_image_url || '/images/default-parfum.jpg'"
-                                :alt="parfum.name"
-                                class="h-full w-full transform object-cover transition-[transform,filter] duration-700 group-hover:scale-105 group-hover:brightness-110"
-                                loading="lazy"
-                            />
+                            <Link :href="route('parfums.show', parfum.slug)">
+                                <img
+                                    :src="parfum.main_image_url || '/images/default-parfum.jpg'"
+                                    :alt="parfum.name"
+                                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    loading="lazy"
+                                />
+                            </Link>
 
-                            <!-- Top Actions -->
-                            <div class="absolute top-0 right-0 left-0 z-30 flex items-start justify-between p-4">
+                            <!-- Top Badges - Always visible -->
+                            <div class="absolute top-0 right-0 left-0 flex justify-between p-3">
+                                <!-- Gender Badge -->
+                                <span class="rounded-full bg-black/70 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                                    {{ genderLabel(parfum.sex) }}
+                                </span>
+
+                                <!-- New Arrival Badge -->
+                                <span
+                                    v-if="filters.sort"
+                                    class="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-black backdrop-blur-sm"
+                                >
+                                    Nou
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Product Info - Always visible -->
+                        <div class="p-4">
+                            <div class="mb-2 flex items-start justify-between">
+                                <div>
+                                    <h3 class="line-clamp-1 text-lg font-medium text-gray-900">{{ parfum.name }}</h3>
+                                    <p class="text-sm text-gray-500">{{ parfum.brand?.name }}</p>
+                                </div>
+                                <span class="text-lg font-bold text-gray-900">{{ parfum.price }} RON</span>
+                            </div>
+
+                            <p class="mb-3 text-xs text-gray-500">{{ parfum.size }}ml</p>
+
+                            <!-- Action Buttons - Always visible -->
+                            <div class="flex items-center justify-between">
                                 <!-- Favorite Button -->
                                 <button
                                     @click.stop="toggleFavorite(parfum.id)"
-                                    class="rounded-full bg-white/90 p-2 backdrop-blur-sm transition-all hover:scale-110 hover:bg-rose-100"
+                                    class="flex items-center justify-center rounded-full p-2 transition-colors"
+                                    :class="parfum.is_favorite ? 'text-rose-500' : 'text-gray-400 hover:text-rose-500'"
+                                    :disabled="isTogglingFavorite === parfum.id"
                                 >
                                     <svg
+                                        v-if="isTogglingFavorite !== parfum.id"
                                         class="h-5 w-5"
-                                        :class="parfum.is_favorite ? 'fill-current text-rose-500' : 'text-gray-700'"
-                                        fill="none"
+                                        :fill="parfum.is_favorite ? 'currentColor' : 'none'"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
                                     >
@@ -149,57 +179,55 @@
                                             d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                                         />
                                     </svg>
+                                    <svg v-else class="h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path
+                                            class="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        ></path>
+                                    </svg>
                                 </button>
 
-                                <!-- New Arrival & Gender -->
-                                <div class="space-y-2 text-right">
-                                    <span
-                                        v-if="filters.sort"
-                                        class="block px-3 py-1 text-xs font-semibold text-black backdrop-blur-sm"
+                                <!-- Add to Cart Button -->
+                                <button
+                                    @click.stop="addToCart(parfum.id)"
+                                    class="flex items-center rounded-full bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800"
+                                    :disabled="isAddingToCart === parfum.id"
+                                >
+                                    <span v-if="isAddingToCart !== parfum.id">Adaugă</span>
+                                    <svg
+                                        v-else
+                                        class="h-5 w-5 animate-spin text-white"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
                                     >
-                                        Nou
-                                    </span>
-                                    <span class="block rounded-full bg-black/30 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                                        {{ genderLabel(parfum.sex) }}
-                                    </span>
-                                </div>
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path
+                                            class="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        ></path>
+                                    </svg>
+                                </button>
+
+                                <!-- View Details Button -->
+                                <Link
+                                    :href="route('parfums.show', parfum.slug)"
+                                    class="flex items-center justify-center rounded-full p-2 text-gray-400 transition-colors hover:text-gray-600"
+                                >
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                        />
+                                    </svg>
+                                </Link>
                             </div>
-
-                            <!-- Bottom Info -->
-                            <div class="absolute right-0 bottom-0 left-0 z-20 space-y-3 p-5 text-white">
-                                <div class="translate-y-5 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-                                    <p class="text-sm font-light text-gray-200">{{ parfum.brand?.name }}</p>
-                                    <h3 class="text-xl leading-snug font-semibold tracking-tight">{{ parfum.name }}</h3>
-                                </div>
-
-                                <!-- Price & Action -->
-                                <div class="flex items-center justify-between transition-all duration-300 group-hover:opacity-0">
-                                    <span class="text-2xl font-bold">€{{ parfum.price }}</span>
-                                    <button
-                                        @click.stop="addToCart(parfum.id)"
-                                        class="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-all hover:bg-white/30 hover:scale-110"
-                                    >
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Hover Overlay -->
-                        <div
-                            class="absolute inset-0 z-20 hidden items-center justify-center bg-black/40 opacity-0 transition-opacity duration-500 group-hover:opacity-100 lg:flex"
-                        >
-                            <Link
-                                href="#"
-                                class="flex items-center space-x-2 rounded-full bg-white/90 px-6 py-2.5 text-sm font-medium text-gray-900 backdrop-blur-sm transition-all hover:bg-white"
-                            >
-                                <span>Descoperă</span>
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                </svg>
-                            </Link>
                         </div>
                     </div>
                 </div>
@@ -274,6 +302,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Link, useForm } from '@inertiajs/vue3';
+import axios from 'axios';
 import { onMounted, ref } from 'vue';
 
 const filters = ref({
@@ -284,6 +313,62 @@ const filters = ref({
     category: '',
 });
 
+const isAddingToCart = ref(null);
+const isTogglingFavorite = ref(null);
+const cartCount = ref(0);
+const cartItems = ref([]);
+
+const fetchCart = async () => {
+    try {
+        const response = await axios.get(route('cart.index'));
+        if (response.data && response.data.cart) {
+            cartCount.value = response.data.cart.count;
+            cartItems.value = response.data.cart.items;
+        }
+    } catch (error) {
+        console.error('Error fetching cart:', error);
+    }
+};
+
+const addToCart = async (productId) => {
+    isAddingToCart.value = productId;
+    try {
+        const response = await axios.post(route('cart.add', { product: productId }), {
+            quantity: 1,
+        });
+
+        // Update local cart state with the response data
+        if (response.data && response.data.cart) {
+            cartCount.value = response.data.cart.count;
+            cartItems.value = response.data.cart.items;
+        }
+
+        fetchCart();
+        // Show success notification
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+    } finally {
+        isAddingToCart.value = null;
+    }
+};
+
+const toggleFavorite = async (productId) => {
+    isTogglingFavorite.value = productId; // Set the product ID that's being toggled
+    try {
+        await axios.post(route('favorites.toggle', { product: productId }));
+
+        // Update local state to reflect the change
+        const productIndex = props.parfumes.findIndex((p) => p.id === productId);
+        if (productIndex !== -1) {
+            props.parfumes[productIndex].is_favorite = !props.parfumes[productIndex].is_favorite;
+        }
+    } catch (error) {
+        console.error('Error toggling favorite:', error);
+    } finally {
+        isTogglingFavorite.value = null; // Reset when done
+    }
+};
+
 onMounted(() => {
     const query = new URLSearchParams(window.location.search);
     filters.value.search = query.get('search') || '';
@@ -291,6 +376,8 @@ onMounted(() => {
     filters.value.brand = query.get('brand') || '';
     filters.value.sex = query.get('sex') || '';
     filters.value.category = query.get('category') || '';
+
+    fetchCart();
 });
 
 const form = useForm(filters.value);

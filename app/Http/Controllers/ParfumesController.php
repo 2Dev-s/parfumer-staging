@@ -15,9 +15,9 @@ class ParfumesController extends Controller
         // Get filters from request
         $sex = $request->get('sex');
         $brand = $request->get('brand');
-        $sort = $request->get('sort');    // price_asc / price_desc
-        $search = $request->get('search'); // new: search keyword
-        $category = $request->get('category'); // new: search keyword
+        $sort = $request->get('sort');
+        $search = $request->get('search');
+        $category = $request->get('category');
 
         $parfumes = Parfum::with(['brand', 'category']); // Add this line
 
@@ -26,12 +26,10 @@ class ParfumesController extends Controller
             $parfumes->where('name', 'like', '%' . $search . '%');
         }
 
-        // Apply sex filter if provided
         if ($sex) {
             $parfumes->where('sex', $sex);
         }
 
-        // Apply brand filter if provided
         if ($brand) {
             $parfumes->where('brand_id', $brand);
         }
@@ -40,7 +38,6 @@ class ParfumesController extends Controller
             $parfumes->where('category_id', $category);
         }
 
-        // Apply sorting by price if sort value is provided
         if ($sort) {
             if ($sort === 'price_asc') {
                 $parfumes->orderBy('price', 'asc');
@@ -51,14 +48,11 @@ class ParfumesController extends Controller
             }
         }
 
-        // Get filtered parfumes
         $parfumes = $parfumes->get();
 
-        // Get available brands
         $brands = Brand::where('active', 1)->get();
         $categories = Category::where('active', 1)->get();
 
-        // Return data to the view
         return Inertia::render('pages/Parfumes', [
             'parfumes' => $parfumes ?? [],
             'brands' => $brands ?? [],
@@ -67,6 +61,25 @@ class ParfumesController extends Controller
             'brand' => $brand,
             'search' => $search,
             'sort' => $sort,
+        ]);
+    }
+
+    public function show($slug)
+    {
+        $parfum = Parfum::with(['brand', 'category'])
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        $relatedParfumes = Parfum::with(['brand', 'category'])
+            ->where('category_id', $parfum->category->id)
+            ->where('id', '!=', $parfum->id) // Exclude current parfume
+            ->inRandomOrder()
+            ->limit(3)
+            ->get();
+
+        return Inertia::render('pages/Parfume', [
+            'parfum' => $parfum,
+            'relatedParfumes' => $relatedParfumes,
         ]);
     }
 }
