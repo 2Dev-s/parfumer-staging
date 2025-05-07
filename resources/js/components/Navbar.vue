@@ -175,7 +175,7 @@
                                                         type="button"
                                                         class="font-medium text-amber-600 transition-colors hover:text-amber-500 focus:outline-none"
                                                     >
-                                                        Eliminăs
+                                                        Elimină
                                                     </button>
                                                 </div>
                                             </div>
