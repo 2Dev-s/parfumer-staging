@@ -194,6 +194,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Link, router } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import axios from 'axios';
 
 const props = defineProps({
     cartItems: Array,
@@ -220,11 +221,20 @@ const updateQuantity = async (id, newQuantity) => {
     );
 };
 
-const removeItem = (id) => {
-    router.delete(route('cart.remove', id), {
-        preserveScroll: true,
-    });
+const removeItem = async (id) => {
+    try {
+        const response = await axios.delete(route('cart.remove', id));
+
+        if (response.data.success) {
+            window.location.reload(); // Refresh la pagină
+        } else {
+            console.error('Failed to remove item:', response.data.message);
+        }
+    } catch (error) {
+        console.error('Error removing item:', error);
+    }
 };
+
 </script>
 
 <style scoped>
