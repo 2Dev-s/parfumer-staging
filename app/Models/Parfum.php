@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Str;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -18,6 +18,7 @@ class Parfum extends Model implements HasMedia
 
     protected $fillable = [
         'name',
+        'slug',
         'brand_id',
         'category_id',
         'description',
@@ -47,37 +48,43 @@ class Parfum extends Model implements HasMedia
         return $this->belongsTo(Category::class);
     }
 
+    // Keep only ONE registerMediaCollections method
     public function registerMediaCollections(): void
     {
+        // Main image collection
         $this->addMediaCollection('main')
-            ->singleFile();
+            ->singleFile()
+            ->useDisk('public');
 
+        // Gallery images collection
         $this->addMediaCollection('gallery')
-            ->useDisk('public'); // or whatever disk you prefer
+            ->useDisk('public');
     }
 
     public function registerMediaConversions(Media $media = null): void
     {
+        // Define conversions for both collections
         $this->addMediaConversion('thumb')
             ->width(300)
             ->height(300)
             ->sharpen(10)
-            ->performOnCollections('main', 'gallery');
+            ->performOnCollections('images', 'gallery');
 
         $this->addMediaConversion('medium')
             ->width(600)
             ->height(600)
-            ->performOnCollections('main', 'gallery');
+            ->performOnCollections('images', 'gallery');
     }
 
     public function getMainImageUrlAttribute(): string
     {
-        return $this->getFirstMediaUrl('images', 'medium');
+        return $this->getFirstMediaUrl('images', 'medium')
+            ?? '/images/default-parfum.jpg';
     }
 
     public function getGalleryImagesAttribute(): array
     {
-        return $this->getMedia('gallery')->map(function ($media) {
+        return $this->getMedia('images')->map(function ($media) {
             return [
                 'url' => $media->getFullUrl('medium'),
                 'thumb' => $media->getFullUrl('thumb'),
@@ -85,9 +92,26 @@ class Parfum extends Model implements HasMedia
         })->toArray();
     }
 
-    public function galleryImages(): MorphMany
+
+    public function setNameAttribute($value)
     {
-        return $this->media()->where('images', 'gallery');
+        $this->attributes['name'] = $value;
+
+        $slug = Str::slug($value);
+        $counter = 1;
+
+        while (static::where('slug', $slug)
+            ->where('id', '!=', $this->id ?? null)
+            ->exists()) {
+            $slug = Str::slug($value) . '-' . $counter;
+            $counter++;
+        }
+
+        $this->attributes['slug'] = $slug;
     }
 
+    public function cartItems(): HasMany
+    {
+        return $this->hasMany(CartItems::class, 'product_id');
+    }
 }
